@@ -1,0 +1,2 @@
+#!/bin/bash
+chown -h vinvent:staff _hello (we are being specific to a file thats why we use -h)
