@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# This script displays listening sockets with their corresponding PID and program name
+
+# Display active internet connections and their corresponding PID and program name
+echo "Active Internet connections (only servers)"
+echo "Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name"
+netstat -tuln | awk '$NF == "LISTEN" {print $1, $4, $7}' | sed 's/.*://' | awk '{print $1 "       " $2 "       " $3}' | while read proto local_address pid_program; do
+    pid=$(echo "$pid_program" | awk -F '/' '{print $1}')
+    program=$(echo "$pid_program" | awk -F '/' '{print $2}')
+    echo "$proto       $local_address       $pid/$program"
+done
+
+# Display active UNIX domain sockets and their corresponding PID and program name
+echo "Active UNIX domain sockets (only servers)"
+echo "Proto RefCnt Flags       Type       State         I-Node   PID/Program name    Path"
+netstat -x | awk '$1 == "unix" && $5 == "LISTENING" {print $1, $2, $3, $4, $5, $6, $7}' | while read proto refcnt flags type state inode pid_program path; do
+    pid=$(echo "$pid_program" | awk -F '/' '{print $1}')
+    program=$(echo "$pid_program" | awk -F '/' '{print $2}')
+    echo "$proto  $refcnt   $flags   $type   $state   $inode   $pid/$program    $path"
+done
